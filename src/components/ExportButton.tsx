@@ -96,22 +96,22 @@ export default function ExportButton() {
                             {getFileSize(content)} • {content.split('\n').length} lines
                           </div>
                         </div>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handlePreview(filename)}
-                        >
-                          <Eye size={16} />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDownloadSingle(filename)}
-                        >
-                          <Download size={16} />
-                        </Button>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handlePreview(filename)}
+                      >
+                        <Eye size={16} />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDownloadSingle(filename)}
+                      >
+                        <Download size={16} />
+                      </Button>
+                    </div>
                       </div>
                     </div>
                   </CardContent>
