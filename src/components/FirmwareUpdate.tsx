@@ -1,14 +1,26 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Label } from '@/components/ui/label'
+import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
-import { Upload, Warning, CheckCircle, X } from '@phosphor-icons/react'
+import { Upload, Warning, CheckCircle, X, ClockCounterClockwise, ShieldCheck, Info } from '@phosphor-icons/react'
 
 interface FirmwareUpdateProps {
   devMode?: boolean
+}
+
+interface FirmwareInfo {
+  currentVersion?: string
+  currentBuild?: string
+  previousVersion?: string
+  previousBuild?: string
+  rollbackAvailable: boolean
+  updateStatus?: 'stable' | 'validating' | 'failed'
+  bootCount?: number
+  lastUpdateTime?: string
 }
 
 export default function FirmwareUpdate({ devMode = false }: FirmwareUpdateProps) {
@@ -17,7 +29,30 @@ export default function FirmwareUpdate({ devMode = false }: FirmwareUpdateProps)
   const [uploadProgress, setUploadProgress] = useState(0)
   const [uploadStatus, setUploadStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle')
   const [errorMessage, setErrorMessage] = useState('')
+  const [firmwareInfo, setFirmwareInfo] = useState<FirmwareInfo | null>(null)
+  const [isRollingBack, setIsRollingBack] = useState(false)
+  const [isLoadingInfo, setIsLoadingInfo] = useState(true)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    fetchFirmwareInfo()
+    const interval = setInterval(fetchFirmwareInfo, 5000)
+    return () => clearInterval(interval)
+  }, [])
+
+  const fetchFirmwareInfo = async () => {
+    try {
+      const response = await fetch('/firmware/info')
+      if (response.ok) {
+        const data = await response.json()
+        setFirmwareInfo(data)
+      }
+    } catch (error) {
+      console.error('Failed to fetch firmware info:', error)
+    } finally {
+      setIsLoadingInfo(false)
+    }
+  }
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -77,9 +112,11 @@ export default function FirmwareUpdate({ devMode = false }: FirmwareUpdateProps)
           setUploadStatus('success')
           setUploadProgress(100)
           toast.success('Firmware uploaded successfully! ESP32 is rebooting...')
+          toast.info('Previous firmware backed up for rollback', { duration: 3000 })
           
           setTimeout(() => {
-            toast.info('Reconnecting to ESP32...', { duration: 5000 })
+            toast.info('Reconnecting and validating firmware...', { duration: 5000 })
+            setTimeout(fetchFirmwareInfo, 10000)
           }, 2000)
         } else {
           setUploadStatus('error')
@@ -116,6 +153,52 @@ export default function FirmwareUpdate({ devMode = false }: FirmwareUpdateProps)
     }
   }
 
+  const handleRollback = async () => {
+    if (!firmwareInfo?.rollbackAvailable) return
+
+    setIsRollingBack(true)
+
+    try {
+      const response = await fetch('/firmware/rollback', {
+        method: 'POST',
+      })
+
+      if (response.ok) {
+        toast.success('Rolling back to previous firmware...')
+        toast.info('ESP32 will reboot in 3 seconds', { duration: 3000 })
+        
+        setTimeout(() => {
+          toast.info('Reconnecting to ESP32...', { duration: 5000 })
+          setTimeout(fetchFirmwareInfo, 10000)
+        }, 3000)
+      } else {
+        const errorText = await response.text()
+        toast.error('Rollback failed: ' + errorText)
+      }
+    } catch (error) {
+      toast.error('Network error during rollback')
+    } finally {
+      setIsRollingBack(false)
+    }
+  }
+
+  const handleMarkValid = async () => {
+    try {
+      const response = await fetch('/firmware/mark-valid', {
+        method: 'POST',
+      })
+
+      if (response.ok) {
+        toast.success('Firmware marked as stable')
+        fetchFirmwareInfo()
+      } else {
+        toast.error('Failed to mark firmware as valid')
+      }
+    } catch (error) {
+      toast.error('Network error')
+    }
+  }
+
   const formatFileSize = (bytes: number) => {
     if (bytes < 1024) return bytes + ' B'
     if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB'
@@ -130,15 +213,95 @@ export default function FirmwareUpdate({ devMode = false }: FirmwareUpdateProps)
           Firmware Update
         </CardTitle>
         <CardDescription>
-          Upload new firmware to update your ESP32 device
+          Upload new firmware to update your ESP32 device with automatic rollback protection
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
+        {!isLoadingInfo && firmwareInfo && (
+          <div className="space-y-3">
+            <div className="flex items-center justify-between p-3 bg-secondary rounded-md">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium">Current Firmware</span>
+                  {firmwareInfo.updateStatus === 'stable' && (
+                    <Badge variant="default" className="gap-1">
+                      <ShieldCheck weight="fill" size={12} />
+                      Stable
+                    </Badge>
+                  )}
+                  {firmwareInfo.updateStatus === 'validating' && (
+                    <Badge variant="secondary" className="gap-1">
+                      <Info weight="fill" size={12} />
+                      Validating
+                    </Badge>
+                  )}
+                  {firmwareInfo.updateStatus === 'failed' && (
+                    <Badge variant="destructive" className="gap-1">
+                      <Warning weight="fill" size={12} />
+                      Failed
+                    </Badge>
+                  )}
+                </div>
+                <div className="text-xs text-muted-foreground space-y-0.5">
+                  {firmwareInfo.currentVersion && <div>Version: {firmwareInfo.currentVersion}</div>}
+                  {firmwareInfo.currentBuild && <div>Build: {firmwareInfo.currentBuild}</div>}
+                  {firmwareInfo.bootCount !== undefined && <div>Boot count: {firmwareInfo.bootCount}</div>}
+                </div>
+              </div>
+              {firmwareInfo.rollbackAvailable && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleRollback}
+                  disabled={isRollingBack || isUploading}
+                  className="gap-1"
+                >
+                  <ClockCounterClockwise weight="fill" size={16} />
+                  Rollback
+                </Button>
+              )}
+            </div>
+
+            {firmwareInfo.rollbackAvailable && firmwareInfo.previousVersion && (
+              <Alert>
+                <ClockCounterClockwise weight="fill" size={20} className="text-accent" />
+                <AlertDescription>
+                  <strong>Rollback available:</strong> {firmwareInfo.previousVersion}
+                  {firmwareInfo.previousBuild && ` (${firmwareInfo.previousBuild})`}
+                  {firmwareInfo.updateStatus === 'validating' && (
+                    <div className="mt-2 flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="default"
+                        onClick={handleMarkValid}
+                        className="gap-1"
+                      >
+                        <ShieldCheck weight="fill" size={14} />
+                        Mark as Stable
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={handleRollback}
+                        disabled={isRollingBack}
+                        className="gap-1"
+                      >
+                        <ClockCounterClockwise weight="fill" size={14} />
+                        Rollback
+                      </Button>
+                    </div>
+                  )}
+                </AlertDescription>
+              </Alert>
+            )}
+          </div>
+        )}
+
         <Alert>
           <Warning weight="fill" size={20} className="text-yellow-500" />
           <AlertDescription>
             <strong>Warning:</strong> Do not disconnect power or close this page during the update process.
-            The ESP32 will reboot automatically after the update completes.
+            The firmware will be automatically backed up before update.
           </AlertDescription>
         </Alert>
 
@@ -226,8 +389,14 @@ export default function FirmwareUpdate({ devMode = false }: FirmwareUpdateProps)
                 <p>• Maximum file size: 2MB</p>
                 <p>• Supported formats: .bin (binary), .elf (executable)</p>
                 <p>• Update endpoint: POST /update</p>
+                <p>• Rollback endpoint: POST /firmware/rollback</p>
+                <p>• Firmware info: GET /firmware/info</p>
+                <p>• Mark valid: POST /firmware/mark-valid</p>
                 <p>• The ESP32 will reboot automatically after successful upload</p>
                 <p>• Connection will be lost during reboot (typically 5-10 seconds)</p>
+                <p>• Previous firmware is backed up to factory partition for rollback</p>
+                <p>• Automatic rollback occurs after 3 failed boot attempts</p>
+                <p>• Firmware must be marked as stable to disable auto-rollback timer</p>
               </div>
             </details>
           </div>

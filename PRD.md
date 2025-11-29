@@ -2,9 +2,9 @@
 
 A modern, automotive-inspired web interface prototype for an ESP32-based shift light system with OBD-II integration, designed to demonstrate the functionality before conversion to standalone HTML/CSS/JS files.
 
-**Project Status:** ✅ Core Implementation Complete (v1.0)  
+**Project Status:** ✅ Core Implementation Complete (v1.1)  
 **Last Updated:** 2024  
-**Current Phase:** Feature Complete - Ready for ESP32 Integration
+**Current Phase:** Feature Complete - Ready for ESP32 Integration + Firmware Rollback
 
 **Experience Qualities**:
 1. **Automotive** - Professional dark interface with technical precision inspired by racing instrumentation
@@ -133,30 +133,57 @@ A modern, automotive-inspired web interface prototype for an ESP32-based shift l
     - Clear UI feedback when folder is set
 
 ### ✅ Firmware Update (IMPLEMENTED)
-- **Functionality**: Upload and flash new ESP32 firmware directly through the web interface via OTA (Over-The-Air) updates
-- **Purpose**: Enable firmware updates without requiring USB cable connection or external tools
+- **Functionality**: Upload and flash new ESP32 firmware directly through the web interface via OTA (Over-The-Air) updates with automatic rollback protection
+- **Purpose**: Enable firmware updates without requiring USB cable connection or external tools, with safety mechanisms to prevent bricked devices
 - **Trigger**: Settings page, Firmware Update section
-- **Progression**: Select firmware file → Validate file type and size → Upload with progress tracking → ESP32 reboots → Reconnect to updated device
-- **Success criteria**: ✓ File validation prevents invalid uploads, ✓ Progress bar shows real-time upload status, ✓ Clear warnings prevent interruption, ✓ Success/error states clearly communicated
+- **Progression**: View firmware status → Select firmware file → Validate file type and size → Upload with progress tracking → ESP32 reboots → Validate new firmware → Mark as stable or rollback
+- **Success criteria**: ✓ File validation prevents invalid uploads, ✓ Progress bar shows real-time upload status, ✓ Clear warnings prevent interruption, ✓ Rollback available after update, ✓ Auto-rollback on boot failures, ✓ Firmware status tracking works
 - **Implementation Notes:**
-  - File selection with .bin/.elf validation
-  - Maximum file size: 2MB (configurable for ESP32 partition schemes)
-  - Real-time upload progress bar using XMLHttpRequest progress events
-  - Warning alerts about not disconnecting power during update
-  - Success confirmation when firmware uploaded successfully
-  - Error handling with detailed error messages
-  - Automatic ESP32 reboot notification after successful upload
-  - Connection loss handling during reboot cycle
-  - Advanced information section in dev mode showing:
+  - **Firmware Status Display:**
+    - Shows current firmware version and build number
+    - Displays firmware status badge: Stable (green), Validating (yellow), Failed (red)
+    - Shows boot count since last update
+    - Displays previous firmware version when rollback is available
+    - Real-time polling of /firmware/info endpoint (every 5 seconds)
+  - **Upload Functionality:**
+    - File selection with .bin/.elf validation
+    - Maximum file size: 2MB (configurable for ESP32 partition schemes)
+    - Real-time upload progress bar using XMLHttpRequest progress events
+    - Warning alerts about not disconnecting power during update
+    - Success confirmation when firmware uploaded successfully
+    - Notification that previous firmware is backed up for rollback
+    - Error handling with detailed error messages
+  - **Rollback Controls:**
+    - "Rollback" button appears when previous firmware is available
+    - Button disabled during upload operations
+    - One-click rollback to previous firmware version
+    - Confirmation notifications before and after rollback
+    - Manual rollback available at any time after update
+  - **Firmware Validation:**
+    - New firmware starts in "Validating" status after upload
+    - User must click "Mark as Stable" to confirm firmware works
+    - Automatic rollback after 3 failed boot attempts
+    - Clear prompts to validate or rollback after successful boot
+  - **ESP32 Integration:**
+    - POST /update endpoint for firmware upload (unchanged)
+    - GET /firmware/info endpoint returns version, status, boot count
+    - POST /firmware/rollback triggers rollback to previous partition
+    - POST /firmware/mark-valid marks firmware as stable
+    - Automatic ESP32 reboot notification after successful upload
+    - Connection loss handling during reboot cycle
+  - **Advanced Information (Dev Mode):**
     - File format requirements
     - Partition scheme notes
-    - Update endpoint details
+    - All endpoint details (update, rollback, info, mark-valid)
     - Typical reboot timing
-  - Endpoint: POST /update (multipart/form-data with 'firmware' field)
+    - Rollback mechanism explanation
+    - Auto-rollback trigger conditions
+    - Firmware validation requirements
   - Clear file button to reset selection
   - File size display in human-readable format
   - Disabled state during upload prevents duplicate requests
-  - Toast notifications for all major events (validation errors, upload progress, success, errors)
+  - Toast notifications for all major events (validation errors, upload progress, success, errors, rollback initiated)
+  - Documentation: FIRMWARE_UPDATE_GUIDE.md and FIRMWARE_ROLLBACK_GUIDE.md
 
 ## Edge Case Handling
 
@@ -168,6 +195,9 @@ A modern, automotive-inspired web interface prototype for an ESP32-based shift l
 - ✓ **Dev Mode Disabled**: Hide advanced panels cleanly, no broken UI elements when features unavailable
 - ✓ **Export File System Access Denied**: Graceful fallback to browser downloads if folder selection fails or is cancelled
 - ✓ **Large React Build Size**: Warning displayed if bundle exceeds typical ESP32 storage limits
+- ✓ **Failed Firmware Update**: Automatic rollback after 3 boot failures, manual rollback button always available
+- ✓ **Firmware Info Unavailable**: Gracefully handles missing /firmware/info endpoint, shows upload UI anyway
+- ✓ **Rollback Not Available**: Disables rollback button when no previous firmware exists (first install)
 
 **Additional Considerations:**
 - Form validation prevents saving when thresholds overlap (greenEnd < yellowEnd < blinkStart)

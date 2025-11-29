@@ -4,6 +4,8 @@
 
 The firmware update feature allows users to upload new ESP32 firmware (.bin files) directly through the web interface without requiring a USB connection. This is implemented using ESP32's built-in OTA (Over-The-Air) update capabilities.
 
+> **⚠️ IMPORTANT:** For production deployments, implement the **Firmware Rollback** feature documented in [FIRMWARE_ROLLBACK_GUIDE.md](./FIRMWARE_ROLLBACK_GUIDE.md). This provides automatic protection against failed updates and allows users to revert to previous working firmware.
+
 ## Web Interface
 
 ### Location
@@ -28,11 +30,19 @@ The firmware update feature allows users to upload new ESP32 firmware (.bin file
    - Error messages with specific failure reasons
    - Reboot notification and reconnection guidance
 
-4. **Advanced Information** (Dev Mode Only)
+4. **Firmware Rollback** (See FIRMWARE_ROLLBACK_GUIDE.md)
+   - Current firmware version and status display
+   - One-click rollback to previous firmware
+   - Automatic rollback after failed boot attempts
+   - Firmware validation workflow
+   - Boot counter tracking
+
+5. **Advanced Information** (Dev Mode Only)
    - File format requirements
    - Partition scheme notes
    - Update endpoint details
    - Typical reboot timing
+   - Rollback technical details
 
 ## ESP32 Implementation
 
@@ -273,9 +283,9 @@ Return appropriate HTTP status codes:
 
 ## Rollback Strategy
 
-### OTA Partition Rollback
+### Basic OTA Partition Rollback
 
-ESP32 supports automatic rollback if new firmware fails to boot:
+For basic rollback support (minimal implementation):
 
 ```cpp
 #include <esp_ota_ops.h>
@@ -293,6 +303,18 @@ void setup() {
   }
 }
 ```
+
+### Advanced Rollback with User Control
+
+**For full rollback functionality with web interface control, boot counting, and manual/automatic rollback, see [FIRMWARE_ROLLBACK_GUIDE.md](./FIRMWARE_ROLLBACK_GUIDE.md).**
+
+The advanced implementation includes:
+- Firmware version tracking
+- Boot failure detection
+- Manual rollback button in web UI
+- Automatic rollback after 3 failed boots
+- Firmware validation workflow
+- Previous firmware backup
 
 ## Web Interface Export
 

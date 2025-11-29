@@ -135,6 +135,12 @@ This application includes two export options for ESP32 deployment:
 - [x] Warning alerts to prevent power interruption
 - [x] Success/error status feedback
 - [x] ESP32 reboot notification and reconnection guidance
+- [x] **Firmware rollback capability (NEW)**
+- [x] **Current firmware version and status display**
+- [x] **One-click rollback to previous firmware**
+- [x] **Automatic rollback after boot failures**
+- [x] **Firmware validation workflow**
+- [x] **Boot counter tracking**
 - [x] Advanced information panel (dev mode only)
 - [x] File size display and validation
 - [x] Clear file selection with reset capability
@@ -252,6 +258,7 @@ See `CLAUDE_PROMPT_REACT_BUILD_EXPORT.md` for detailed instructions on building 
 │   │   ├── WiFiManager.tsx        # WiFi management UI
 │   │   ├── BLEManager.tsx         # BLE pairing UI
 │   │   ├── VehicleSync.tsx        # OBD sync UI
+│   │   ├── FirmwareUpdate.tsx     # OTA firmware update with rollback
 │   │   └── OBDConsole.tsx         # Raw OBD command console
 │   ├── lib/
 │   │   ├── api.ts                 # ESP32 API client (vanilla JS compatible)
@@ -318,6 +325,7 @@ See `CLAUDE_PROMPT_REACT_BUILD_EXPORT.md` for detailed instructions on building 
 - **VANILLA_EXPORT_IMPROVEMENTS.md** - How to improve vanilla export to match React
 - **ESP32_CONVERSION_GUIDE.md** - React to vanilla JS conversion examples
 - **FIRMWARE_UPDATE_GUIDE.md** - Complete OTA firmware update implementation guide
+- **FIRMWARE_ROLLBACK_GUIDE.md** - ⭐ **NEW:** Firmware rollback implementation with auto-recovery
 - **CLAUDE_PROMPT_REACT_BUILD_EXPORT.md** - Guide for implementing React build export
 
 ## 📄 License
