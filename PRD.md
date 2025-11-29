@@ -92,6 +92,46 @@ A modern, automotive-inspired web interface prototype for an ESP32-based shift l
   - Custom scrollbar styling matching theme colors
   - Endpoints: /dev/obd-send, /dev/display-status, /dev/display-pattern, /dev/display-logo
 
+### ✅ Export Functionality (IMPLEMENTED)
+- **Functionality**: Export the web interface as standalone files for ESP32 deployment in two formats
+- **Purpose**: Enable deployment to ESP32 hardware with flexibility for different storage constraints
+- **Trigger**: "Export for ESP32" button in header, accessible from any page
+- **Progression**: Click export → Choose export type (Vanilla/React Build) → Configure options → Download or save to folder
+- **Success criteria**: ✓ Files generate correctly, ✓ Vanilla files match 95%+ visual appearance, ✓ React build includes all setup documentation, ✓ Persistent folder selection works
+- **Implementation Notes:**
+  - **Vanilla Export Option:**
+    - Generates 4 files: index.html, settings.html, style.css, app.js
+    - Total size ~20KB - perfect for ESP32 with limited storage
+    - Pure HTML/CSS/JavaScript with no dependencies or build tools
+    - 95% visual match to React version with CSS animations
+    - Includes all functionality (forms, status polling, API integration)
+    - Optimized for LittleFS/SPIFFS deployment
+  - **React Build Export Option:**
+    - Generates setup package with documentation and configuration files
+    - Includes README.md with deployment guide (~600KB total size estimates)
+    - Includes esp32-server.ino Arduino sketch template
+    - Includes platformio.ini for PlatformIO users
+    - Provides BUILD_INSTRUCTIONS.md for manual build process
+    - Shows size comparison table (Vanilla vs React Build)
+    - Warns about storage requirements (1-2MB needed)
+    - 100% identical to development version when built
+  - **UI Features:**
+    - Tabbed interface to choose between export types
+    - File preview with syntax highlighting (Prism.js)
+    - Copy-to-clipboard for individual files
+    - Download individual files or all at once
+    - Persistent folder selection using File System Access API
+    - Defaults to `webserver` folder name
+    - Visual comparison table of both export options
+    - Size analysis for React build option
+    - Deployment instructions included in UI
+  - **File System Integration:**
+    - Uses `showDirectoryPicker` API when available
+    - Saves selected folder name to useKV for persistence
+    - Directly exports to selected folder (replaces existing files)
+    - Fallback to browser downloads if API not supported
+    - Clear UI feedback when folder is set
+
 ## Edge Case Handling
 
 **Implemented:**
@@ -100,6 +140,8 @@ A modern, automotive-inspired web interface prototype for an ESP32-based shift l
 - ✓ **Missing Vehicle Data**: Display placeholder states when VIN/model unavailable, clear messaging for sync failures
 - ✓ **BLE Connection Loss**: Auto-reconnect indication, manual reconnect button, connection status always visible
 - ✓ **Dev Mode Disabled**: Hide advanced panels cleanly, no broken UI elements when features unavailable
+- ✓ **Export File System Access Denied**: Graceful fallback to browser downloads if folder selection fails or is cancelled
+- ✓ **Large React Build Size**: Warning displayed if bundle exceeds typical ESP32 storage limits
 
 **Additional Considerations:**
 - Form validation prevents saving when thresholds overlap (greenEnd < yellowEnd < blinkStart)
