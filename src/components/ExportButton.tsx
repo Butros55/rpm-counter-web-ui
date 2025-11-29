@@ -191,7 +191,7 @@ export default function ExportButton() {
       </Dialog>
 
       <Dialog open={!!previewFile} onOpenChange={() => setPreviewFile(null)}>
-        <DialogContent className="max-w-7xl w-[95vw] h-[90vh] flex flex-col p-0">
+        <DialogContent className="max-w-[85vw] w-[85vw] h-[90vh] flex flex-col p-0">
           <DialogHeader className="px-6 pt-6 pb-4 border-b border-border bg-card/50">
             <DialogTitle className="flex items-center gap-2">
               {previewFile && getFileIcon(previewFile.name)}
@@ -202,9 +202,9 @@ export default function ExportButton() {
             </DialogDescription>
           </DialogHeader>
 
-          <div className="flex-1 overflow-auto px-6 py-4">
+          <div className="flex-1 overflow-auto px-6 py-4 custom-scrollbar">
             <div className="rounded-lg border border-border bg-[#1d1f21] overflow-hidden">
-              <pre className="overflow-auto p-4 text-sm leading-relaxed m-0" style={{ background: '#1d1f21' }}>
+              <pre className="overflow-auto p-4 text-sm leading-relaxed m-0 custom-scrollbar" style={{ background: '#1d1f21' }}>
                 <code className={`language-${previewFile ? getLanguage(previewFile.name) : 'markup'}`}>
                   {previewFile?.content}
                 </code>
