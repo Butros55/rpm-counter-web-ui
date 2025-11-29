@@ -42,6 +42,27 @@ export interface BLEDevice {
   rssi?: number
 }
 
+export interface BLEConnectionHistoryEntry {
+  address: string
+  name: string
+  timestamp: number
+  success: boolean
+  duration?: number
+  disconnectReason?: string
+}
+
+export interface BLESavedDevice {
+  address: string
+  name: string
+  lastConnected?: number
+  totalConnections: number
+  successfulConnections: number
+  failedConnections: number
+  averageConnectionDuration?: number
+  history: BLEConnectionHistoryEntry[]
+  isFavorite?: boolean
+}
+
 export interface BLEStatusResponse {
   scanning: boolean
   connected: boolean

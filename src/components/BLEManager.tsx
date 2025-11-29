@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -6,18 +6,43 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { BluetoothConnected, BluetoothSlash, MagnifyingGlass } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { api } from '@/lib/api'
+import { useBLEHistory } from '@/hooks/use-ble-history'
 import type { BLEStatusResponse, BLEDevice } from '@/lib/types'
 
 export default function BLEManager() {
   const [bleStatus, setBleStatus] = useState<BLEStatusResponse | null>(null)
   const [isScanning, setIsScanning] = useState(false)
   const [showDeviceDialog, setShowDeviceDialog] = useState(false)
+  const { addConnectionAttempt } = useBLEHistory()
+  
+  const connectionStartTime = useRef<number | null>(null)
+  const previousConnectionStatus = useRef<boolean>(false)
+  const currentDeviceRef = useRef<BLEDevice | null>(null)
 
   useEffect(() => {
     const fetchStatus = async () => {
       try {
         const data = await api.getBLEStatus()
         setBleStatus(data)
+        
+        if (data.currentDevice) {
+          currentDeviceRef.current = data.currentDevice
+          
+          if (data.connected && !previousConnectionStatus.current) {
+            connectionStartTime.current = Date.now()
+            addConnectionAttempt(data.currentDevice, true)
+          }
+          
+          if (!data.connected && previousConnectionStatus.current && connectionStartTime.current) {
+            const duration = Date.now() - connectionStartTime.current
+            if (currentDeviceRef.current) {
+              addConnectionAttempt(currentDeviceRef.current, false, duration, 'Disconnected')
+            }
+            connectionStartTime.current = null
+          }
+          
+          previousConnectionStatus.current = data.connected
+        }
       } catch (error) {
         console.error('Failed to fetch BLE status:', error)
       }
@@ -26,7 +51,7 @@ export default function BLEManager() {
     fetchStatus()
     const interval = setInterval(fetchStatus, 3000)
     return () => clearInterval(interval)
-  }, [])
+  }, [addConnectionAttempt])
 
   const handleScan = async () => {
     setIsScanning(true)
@@ -46,8 +71,11 @@ export default function BLEManager() {
       await api.connectBLEDevice(device.address, device.name)
       toast.success(`Connecting to ${device.name}`)
       setShowDeviceDialog(false)
+      connectionStartTime.current = Date.now()
+      currentDeviceRef.current = device
     } catch (error) {
       toast.error('Failed to connect to device')
+      addConnectionAttempt(device, false, undefined, 'Connection failed')
     }
   }
 

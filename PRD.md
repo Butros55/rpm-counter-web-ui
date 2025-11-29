@@ -60,11 +60,11 @@ A modern, automotive-inspired web interface prototype for an ESP32-based shift l
   - Endpoints: /wifi/status, /wifi/scan, /wifi/connect, /wifi/disconnect
 
 ### ✅ Bluetooth LE Device Pairing (IMPLEMENTED)
-- **Functionality**: Scan for and pair with OBD-II BLE adapters
-- **Purpose**: Establish connection to vehicle's OBD-II port wirelessly
+- **Functionality**: Scan for and pair with OBD-II BLE adapters with connection history tracking
+- **Purpose**: Establish connection to vehicle's OBD-II port wirelessly and track connection reliability
 - **Trigger**: Settings page, Bluetooth section or main page dev mode
-- **Progression**: Scan devices → Display available adapters → Select target → Connect with retry logic → Show connection status
-- **Success criteria**: ✓ Paired device persists, ✓ connection status updates, ✓ auto-reconnect configurable
+- **Progression**: Scan devices → Display available adapters → Select target → Connect with retry logic → Show connection status → Track history
+- **Success criteria**: ✓ Paired device persists, ✓ connection status updates, ✓ auto-reconnect configurable, ✓ connection history tracked
 - **Implementation Notes:**
   - BLE scanner with device name and MAC address display
   - Connection status card showing paired device and signal strength
@@ -74,6 +74,21 @@ A modern, automotive-inspired web interface prototype for an ESP32-based shift l
   - Status badge colors: connected (green), connecting (yellow), disconnected (red)
   - Endpoints: /ble/status, /ble/scan, /ble/connect-device, /connect, /disconnect
   - Dev mode panel on ShiftLight page for quick BLE controls
+  - **Connection History Tracking (NEW):**
+    - Automatically tracks all connection attempts with timestamps
+    - Records successful and failed connections for each device
+    - Calculates success rate percentage and displays progress bar
+    - Tracks average connection duration for successful connections
+    - Shows last connection time with relative timestamps (e.g., "2 hours ago")
+    - Displays recent activity log (last 5 connection events per device)
+    - Favorite device feature with star icon toggle
+    - Devices sorted by favorite status, then by last connection time
+    - Click any saved device to quickly reconnect
+    - Clear individual device history or remove device from list
+    - Persistent storage using useKV hook (survives page refresh)
+    - Visual indicators: success (green checkmark), failure (red X)
+    - Connection duration shown in human-readable format (e.g., "2h 15m")
+    - Empty state with helpful message when no devices saved yet
 
 ### ✅ Developer Console (IMPLEMENTED)
 - **Functionality**: Send raw OBD commands, view responses, monitor display hardware, trigger test patterns

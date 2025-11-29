@@ -129,6 +129,15 @@ This application includes two export options for ESP32 deployment:
 - [x] Auto-reconnect toggle (dev mode)
 - [x] Manual connect/disconnect controls
 - [x] Status badge indicators (connected/connecting/disconnected)
+- [x] **Connection history tracking (NEW)**
+- [x] **Success rate calculation and visualization**
+- [x] **Last connection timestamp with relative time**
+- [x] **Average connection duration tracking**
+- [x] **Recent activity log (last 5 events per device)**
+- [x] **Favorite device marking with star icon**
+- [x] **Quick reconnect from saved device list**
+- [x] **Clear history and remove device options**
+- [x] **Persistent storage across sessions**
 
 **Developer Mode:**
 - [x] Toggle in settings (persists via useKV)

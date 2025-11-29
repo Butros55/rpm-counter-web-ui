@@ -9,6 +9,7 @@ import { api } from '@/lib/api'
 import type { StatusResponse } from '@/lib/types'
 import WiFiManager from './WiFiManager'
 import BLEManager from './BLEManager'
+import BLEConnectionHistory from './BLEConnectionHistory'
 import VehicleSync from './VehicleSync'
 import OBDConsole from './OBDConsole'
 import FirmwareUpdate from './FirmwareUpdate'
@@ -91,6 +92,8 @@ export default function SettingsPage() {
       <VehicleSync status={status} />
 
       <BLEManager />
+
+      <BLEConnectionHistory />
 
       {devMode && <OBDConsole status={status} />}
     </div>
