@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -9,14 +9,20 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { Card, CardContent } from '@/components/ui/card'
-import { Download, FileHtml, FileCss, FileJs, CheckCircle, Eye } from '@phosphor-icons/react'
+import { Download, FileHtml, FileCss, FileJs, CheckCircle, Eye, Copy, Check } from '@phosphor-icons/react'
 import { generateVanillaExport, downloadFile, downloadAllFiles } from '@/lib/export-generator'
 import { toast } from 'sonner'
+import Prism from 'prismjs'
+import 'prismjs/components/prism-markup'
+import 'prismjs/components/prism-css'
+import 'prismjs/components/prism-javascript'
+import 'prismjs/themes/prism-tomorrow.css'
 
 export default function ExportButton() {
   const [isOpen, setIsOpen] = useState(false)
   const [previewFile, setPreviewFile] = useState<{ name: string; content: string } | null>(null)
   const [files, setFiles] = useState<ReturnType<typeof generateVanillaExport> | null>(null)
+  const [copiedFile, setCopiedFile] = useState<string | null>(null)
 
   const handleGenerate = () => {
     const exportedFiles = generateVanillaExport()
@@ -40,6 +46,32 @@ export default function ExportButton() {
     if (!files) return
     setPreviewFile({ name: filename, content: files[filename as keyof typeof files] })
   }
+
+  const handleCopyToClipboard = async (filename: string) => {
+    if (!files) return
+    const content = files[filename as keyof typeof files]
+    try {
+      await navigator.clipboard.writeText(content)
+      setCopiedFile(filename)
+      toast.success(`Copied ${filename} to clipboard`)
+      setTimeout(() => setCopiedFile(null), 2000)
+    } catch (err) {
+      toast.error('Failed to copy to clipboard')
+    }
+  }
+
+  const getLanguage = (filename: string): string => {
+    if (filename.endsWith('.html')) return 'markup'
+    if (filename.endsWith('.css')) return 'css'
+    if (filename.endsWith('.js')) return 'javascript'
+    return 'markup'
+  }
+
+  useEffect(() => {
+    if (previewFile) {
+      setTimeout(() => Prism.highlightAll(), 0)
+    }
+  }, [previewFile])
 
   const getFileIcon = (filename: string) => {
     if (filename.endsWith('.html')) return <FileHtml size={20} weight="duotone" />
@@ -100,7 +132,20 @@ export default function ExportButton() {
                       <Button
                         variant="ghost"
                         size="sm"
+                        onClick={() => handleCopyToClipboard(filename)}
+                        title="Copy to clipboard"
+                      >
+                        {copiedFile === filename ? (
+                          <Check size={16} className="text-accent" />
+                        ) : (
+                          <Copy size={16} />
+                        )}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         onClick={() => handlePreview(filename)}
+                        title="Preview code"
                       >
                         <Eye size={16} />
                       </Button>
@@ -108,6 +153,7 @@ export default function ExportButton() {
                         variant="ghost"
                         size="sm"
                         onClick={() => handleDownloadSingle(filename)}
+                        title="Download file"
                       >
                         <Download size={16} />
                       </Button>
@@ -145,8 +191,8 @@ export default function ExportButton() {
       </Dialog>
 
       <Dialog open={!!previewFile} onOpenChange={() => setPreviewFile(null)}>
-        <DialogContent className="max-w-6xl w-[95vw] h-[90vh] flex flex-col p-0">
-          <DialogHeader className="px-6 pt-6 pb-4">
+        <DialogContent className="max-w-7xl w-[95vw] h-[90vh] flex flex-col p-0">
+          <DialogHeader className="px-6 pt-6 pb-4 border-b border-border bg-card/50">
             <DialogTitle className="flex items-center gap-2">
               {previewFile && getFileIcon(previewFile.name)}
               <span className="font-mono">{previewFile?.name}</span>
@@ -156,24 +202,45 @@ export default function ExportButton() {
             </DialogDescription>
           </DialogHeader>
 
-          <div className="flex-1 overflow-auto px-6">
-            <div className="rounded-lg border border-border bg-card/50">
-              <pre className="overflow-auto p-4 text-xs font-mono leading-relaxed">
-                <code>{previewFile?.content}</code>
+          <div className="flex-1 overflow-auto px-6 py-4">
+            <div className="rounded-lg border border-border bg-[#1d1f21] overflow-hidden">
+              <pre className="overflow-auto p-4 text-sm leading-relaxed m-0" style={{ background: '#1d1f21' }}>
+                <code className={`language-${previewFile ? getLanguage(previewFile.name) : 'markup'}`}>
+                  {previewFile?.content}
+                </code>
               </pre>
             </div>
           </div>
 
-          <div className="flex justify-end gap-2 px-6 py-4 border-t border-border">
-            <Button variant="outline" onClick={() => setPreviewFile(null)}>
-              Close
+          <div className="flex justify-between items-center gap-2 px-6 py-4 border-t border-border bg-card/50">
+            <Button 
+              variant="outline" 
+              onClick={() => previewFile && handleCopyToClipboard(previewFile.name)}
+              className="gap-2"
+            >
+              {copiedFile === previewFile?.name ? (
+                <>
+                  <Check size={16} className="text-accent" />
+                  Copied!
+                </>
+              ) : (
+                <>
+                  <Copy size={16} />
+                  Copy to Clipboard
+                </>
+              )}
             </Button>
-            {previewFile && (
-              <Button onClick={() => handleDownloadSingle(previewFile.name)}>
-                <Download size={16} />
-                Download {previewFile.name}
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={() => setPreviewFile(null)}>
+                Close
               </Button>
-            )}
+              {previewFile && (
+                <Button onClick={() => handleDownloadSingle(previewFile.name)} className="gap-2">
+                  <Download size={16} />
+                  Download {previewFile.name}
+                </Button>
+              )}
+            </div>
           </div>
         </DialogContent>
       </Dialog>
