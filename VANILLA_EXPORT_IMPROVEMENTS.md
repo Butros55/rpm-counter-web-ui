@@ -7,6 +7,7 @@ This guide explains how to enhance the vanilla HTML/CSS/JS export to more closel
 ### 1. Component Styling
 
 **React (shadcn + Tailwind):**
+
 ```tsx
 <Button variant="outline" className="gap-2">
   <Download weight="bold" size={18} />
@@ -15,6 +16,7 @@ This guide explains how to enhance the vanilla HTML/CSS/JS export to more closel
 ```
 
 **Vanilla HTML:**
+
 ```html
 <button class="btn btn-secondary">
   <span class="icon">⬇</span> Export for ESP32
@@ -22,6 +24,7 @@ This guide explains how to enhance the vanilla HTML/CSS/JS export to more closel
 ```
 
 **Improvements Needed:**
+
 - Match exact button padding (0.625rem 1rem vs Tailwind's spacing)
 - Match border radius (--radius: 0.5rem)
 - Match shadow and hover effects
@@ -30,6 +33,7 @@ This guide explains how to enhance the vanilla HTML/CSS/JS export to more closel
 ### 2. Switch Component
 
 **React (shadcn Switch):**
+
 - Smooth transition animation (0.2s)
 - Precise thumb positioning
 - Focus ring with proper color
@@ -37,6 +41,7 @@ This guide explains how to enhance the vanilla HTML/CSS/JS export to more closel
 
 **Vanilla CSS:**
 Current implementation is already good, but needs:
+
 - Match exact dimensions (44px width, 24px height)
 - Match thumb size (18px)
 - Match transition timing
@@ -45,6 +50,7 @@ Current implementation is already good, but needs:
 ### 3. Slider Component
 
 **React (shadcn Slider):**
+
 ```tsx
 <Slider
   value={[brightness]}
@@ -56,10 +62,12 @@ Current implementation is already good, but needs:
 ```
 
 **Vanilla:**
+
 - Uses native `<input type="range">`
 - Styling is browser-dependent
 
 **Improvements:**
+
 ```css
 /* Better cross-browser slider styling */
 input[type="range"] {
@@ -128,58 +136,56 @@ input[type="range"]::-moz-range-thumb {
 ```
 
 And JavaScript to update slider value visualization:
+
 ```javascript
 function updateSliderBackground(slider) {
   const value = slider.value;
   const min = slider.min || 0;
   const max = slider.max || 100;
   const percentage = ((value - min) / (max - min)) * 100;
-  slider.style.setProperty('--slider-value', `${percentage}%`);
+  slider.style.setProperty("--slider-value", `${percentage}%`);
 }
 
-document.querySelectorAll('input[type="range"]').forEach(slider => {
+document.querySelectorAll('input[type="range"]').forEach((slider) => {
   updateSliderBackground(slider);
-  slider.addEventListener('input', () => updateSliderBackground(slider));
+  slider.addEventListener("input", () => updateSliderBackground(slider));
 });
 ```
 
 ### 4. Card Component
 
 **React (shadcn Card):**
+
 ```tsx
 <Card>
   <CardHeader>
     <CardTitle>Display Mode & Brightness</CardTitle>
     <CardDescription>Configure the shift light behavior</CardDescription>
   </CardHeader>
-  <CardContent>
-    {/* Content */}
-  </CardContent>
+  <CardContent>{/* Content */}</CardContent>
 </Card>
 ```
 
 **CSS Improvements:**
+
 ```css
 .card {
   background: var(--card-bg);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  box-shadow: 
-    0 1px 3px 0 rgb(0 0 0 / 0.1),
-    0 1px 2px -1px rgb(0 0 0 / 0.1);
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
   transition: box-shadow 0.2s;
 }
 
 .card:hover {
-  box-shadow: 
-    0 4px 6px -1px rgb(0 0 0 / 0.1),
-    0 2px 4px -2px rgb(0 0 0 / 0.1);
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
 }
 ```
 
 ### 5. Badge Component
 
 **Current:**
+
 ```css
 .badge {
   padding: 0.25rem 0.75rem;
@@ -189,6 +195,7 @@ document.querySelectorAll('input[type="range"]').forEach(slider => {
 ```
 
 **Enhanced:**
+
 ```css
 .badge {
   display: inline-flex;
@@ -219,22 +226,23 @@ document.querySelectorAll('input[type="range"]').forEach(slider => {
 **Current:** Static div segments
 
 **Enhanced with Animation:**
+
 ```javascript
 function updateLEDPreview() {
-  const preview = document.getElementById('led-preview');
+  const preview = document.getElementById("led-preview");
   if (!preview) return;
-  
+
   const config = getCurrentConfig();
   const segments = 50;
-  
+
   // Clear and rebuild
-  preview.innerHTML = '';
-  
+  preview.innerHTML = "";
+
   for (let i = 0; i < segments; i++) {
     const pct = (i / segments) * 100;
-    const segment = document.createElement('div');
-    segment.className = 'led-segment';
-    
+    const segment = document.createElement("div");
+    segment.className = "led-segment";
+
     // Determine color
     let color;
     if (pct < config.greenEndPct) {
@@ -245,10 +253,10 @@ function updateLEDPreview() {
       color = config.redColor;
       if (pct >= config.blinkStartPct) {
         // Add blink animation
-        segment.style.animation = 'blink 0.5s infinite';
+        segment.style.animation = "blink 0.5s infinite";
       }
     }
-    
+
     segment.style.background = color;
     segment.style.boxShadow = `0 0 8px ${color}`;
     preview.appendChild(segment);
@@ -256,7 +264,7 @@ function updateLEDPreview() {
 }
 
 // Add blink animation
-const style = document.createElement('style');
+const style = document.createElement("style");
 style.textContent = `
   @keyframes blink {
     0%, 100% { opacity: 1; }
@@ -274,6 +282,7 @@ document.head.appendChild(style);
 ### 7. Toast Notifications
 
 **Enhanced Toast:**
+
 ```css
 .toast {
   background: var(--card-bg);
@@ -281,9 +290,7 @@ document.head.appendChild(style);
   padding: 1rem 1.25rem;
   border-radius: var(--radius);
   margin-bottom: 0.5rem;
-  box-shadow: 
-    0 10px 15px -3px rgb(0 0 0 / 0.1),
-    0 4px 6px -4px rgb(0 0 0 / 0.1);
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
   border: 1px solid var(--border);
   min-width: 300px;
   animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -321,24 +328,24 @@ document.head.appendChild(style);
 ```
 
 ```javascript
-function showToast(message, type = 'success') {
-  const container = document.getElementById('toast-container');
-  const toast = document.createElement('div');
+function showToast(message, type = "success") {
+  const container = document.getElementById("toast-container");
+  const toast = document.createElement("div");
   toast.className = `toast ${type}`;
-  
-  const icon = type === 'success' ? '✓' : '✗';
+
+  const icon = type === "success" ? "✓" : "✗";
   toast.innerHTML = `
     <div style="display: flex; align-items: center; gap: 0.75rem;">
       <span style="font-size: 1.25rem;">${icon}</span>
       <span>${message}</span>
     </div>
   `;
-  
+
   container.appendChild(toast);
-  
+
   // Auto dismiss after 3s
   setTimeout(() => {
-    toast.style.animation = 'slideOut 0.3s cubic-bezier(0.16, 1, 0.3, 1)';
+    toast.style.animation = "slideOut 0.3s cubic-bezier(0.16, 1, 0.3, 1)";
     setTimeout(() => toast.remove(), 300);
   }, 3000);
 }
@@ -347,13 +354,14 @@ function showToast(message, type = 'success') {
 ### 8. Color Picker
 
 **Enhanced with better UX:**
+
 ```html
 <div class="color-input-group">
   <div class="color-picker-wrapper">
-    <input type="color" id="greenColor" value="#00FF00">
+    <input type="color" id="greenColor" value="#00FF00" />
     <div class="color-preview" style="background: #00FF00"></div>
   </div>
-  <input type="text" id="greenColor-text" value="#00FF00">
+  <input type="text" id="greenColor-text" value="#00FF00" />
 </div>
 ```
 
@@ -411,18 +419,22 @@ Add skeleton loaders for better UX:
 }
 
 @keyframes shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
 ```
 
 ```javascript
 function showLoadingState(element) {
-  const skeleton = document.createElement('div');
-  skeleton.className = 'skeleton';
-  skeleton.style.width = '100%';
-  skeleton.style.height = '1.5rem';
-  element.innerHTML = '';
+  const skeleton = document.createElement("div");
+  skeleton.className = "skeleton";
+  skeleton.style.width = "100%";
+  skeleton.style.height = "1.5rem";
+  element.innerHTML = "";
   element.appendChild(skeleton);
 }
 ```
@@ -436,24 +448,24 @@ Add better mobile styles:
   .container {
     padding: 1rem;
   }
-  
+
   .action-buttons {
     flex-direction: column;
   }
-  
+
   .action-buttons .btn {
     width: 100%;
     justify-content: center;
   }
-  
+
   .color-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .tabs {
     max-width: 100%;
   }
-  
+
   .info-grid {
     grid-template-columns: 1fr;
   }
@@ -463,6 +475,7 @@ Add better mobile styles:
 ## Complete Enhanced CSS
 
 See the full enhanced CSS in the export generator. Key additions:
+
 - CSS custom properties for all colors
 - Smooth transitions on interactive elements
 - Proper focus states for accessibility
@@ -474,6 +487,7 @@ See the full enhanced CSS in the export generator. Key additions:
 ## Testing Checklist
 
 After implementing improvements, test:
+
 - [ ] All buttons have proper hover/active states
 - [ ] Sliders show visual feedback
 - [ ] Switches animate smoothly
@@ -488,6 +502,7 @@ After implementing improvements, test:
 ## Performance Optimization
 
 For ESP32, keep in mind:
+
 - Minimize CSS file size (remove unused rules)
 - Combine selectors where possible
 - Use simple animations (avoid complex transforms)
@@ -497,6 +512,7 @@ For ESP32, keep in mind:
 ## Final Result
 
 After these enhancements, the vanilla export should:
+
 - Look 95%+ identical to React app
 - Feel smooth and responsive
 - Maintain small file size (~25-30KB total)

@@ -16,6 +16,7 @@ Your original request was for standalone HTML/CSS/JavaScript files. However, sin
 ### Step 1: Extract the HTML Structure
 
 Each React component's JSX can be converted directly to HTML:
+
 - Replace `className` with `class`
 - Replace `onClick={handler}` with `onclick="handler()"`
 - Replace `{variable}` with template literal substitution or DOM manipulation
@@ -23,6 +24,7 @@ Each React component's JSX can be converted directly to HTML:
 ### Step 2: Extract the CSS
 
 The Tailwind classes can be converted to a custom CSS file:
+
 ```css
 /* Extract from src/index.css - this gives you the color palette */
 :root {
@@ -34,6 +36,7 @@ The Tailwind classes can be converted to a custom CSS file:
 ```
 
 You can either:
+
 - Use Tailwind CSS from CDN (add `<script src="https://cdn.tailwindcss.com"></script>`)
 - Or convert Tailwind classes to regular CSS (more work but smaller file size)
 
@@ -42,33 +45,35 @@ You can either:
 **Example Conversion:**
 
 React Component:
+
 ```tsx
 const [config, setConfig] = useState({ brightness: 128 })
 
-<Slider 
-  value={[config.brightness]} 
+<Slider
+  value={[config.brightness]}
   onValueChange={([value]) => setConfig({ ...config, brightness: value })}
 />
 ```
 
 Vanilla JS Equivalent:
+
 ```html
-<input 
-  type="range" 
-  id="brightness" 
-  min="0" 
-  max="255" 
+<input
+  type="range"
+  id="brightness"
+  min="0"
+  max="255"
   value="128"
   oninput="updateBrightness(this.value)"
->
+/>
 
 <script>
-let config = { brightness: 128 };
+  let config = { brightness: 128 };
 
-function updateBrightness(value) {
-  config.brightness = parseInt(value);
-  document.getElementById('brightness-value').textContent = value;
-}
+  function updateBrightness(value) {
+    config.brightness = parseInt(value);
+    document.getElementById("brightness-value").textContent = value;
+  }
 </script>
 ```
 
@@ -83,10 +88,10 @@ async function saveConfig(data) {
   Object.entries(data).forEach(([key, value]) => {
     formData.append(key, String(value));
   });
-  
-  await fetch('/save', {
-    method: 'POST',
-    body: formData
+
+  await fetch("/save", {
+    method: "POST",
+    body: formData,
   });
 }
 ```
@@ -106,6 +111,7 @@ You'll want to create these files for your ESP32:
 ## Key Features Implemented
 
 ### ShiftLight Setup Page (`index.html`)
+
 - ✅ Mode selection (Casual, F1-Style, Überempfindlich)
 - ✅ Brightness slider with live value display
 - ✅ Auto-scale vs fixed max RPM
@@ -118,6 +124,7 @@ You'll want to create these files for your ESP32:
 - ✅ Save/Reset/Test buttons
 
 ### Settings Page (`settings.html`)
+
 - ✅ Developer mode toggle
 - ✅ WiFi management (scan, connect, disconnect)
 - ✅ WiFi mode selection (AP/STA/Fallback)
@@ -128,7 +135,9 @@ You'll want to create these files for your ESP32:
 - ✅ Auto-log toggle for live OBD monitoring
 
 ### API Integration
+
 All endpoints are implemented in `src/lib/api.ts`:
+
 - `/status` - GET polling every 2.5 seconds
 - `/save` - POST configuration
 - `/test` - POST test pattern
@@ -141,17 +150,20 @@ All endpoints are implemented in `src/lib/api.ts`:
 ## Design System
 
 ### Colors (Automotive Dark Theme)
+
 - **Background**: Near black `oklch(0.12 0 0)`
 - **Primary**: Electric blue `oklch(0.65 0.22 240)`
 - **Accent**: Cyan highlight `oklch(0.75 0.15 200)`
 - **Cards**: Deep charcoal `oklch(0.18 0.01 240)`
 
 ### Typography
+
 - System fonts for zero-latency loading
 - Monospace for technical data (VIN, MAC, OBD codes)
 - Clear hierarchy with bold headers
 
 ### Layout
+
 - Mobile-first responsive design
 - Cards with 24px padding
 - Generous touch targets (min 44px)
@@ -183,6 +195,7 @@ All endpoints are implemented in `src/lib/api.ts`:
 ## Example: Converting the Brightness Slider
 
 **React version (in this prototype):**
+
 ```tsx
 <Slider
   id="brightness"
@@ -194,31 +207,33 @@ All endpoints are implemented in `src/lib/api.ts`:
 ```
 
 **Vanilla HTML:**
+
 ```html
 <div class="form-group">
   <label for="brightness">
     Brightness
     <span id="brightness-value">128</span>
   </label>
-  <input 
-    type="range" 
-    id="brightness" 
+  <input
+    type="range"
+    id="brightness"
     class="form-range"
-    min="0" 
-    max="255" 
+    min="0"
+    max="255"
     value="128"
     oninput="updateBrightness(this.value)"
-  >
+  />
 </div>
 ```
 
 **Vanilla JavaScript:**
+
 ```javascript
 let config = { brightness: 128 };
 
 function updateBrightness(value) {
   config.brightness = parseInt(value);
-  document.getElementById('brightness-value').textContent = value;
+  document.getElementById("brightness-value").textContent = value;
   updateLEDPreview();
 }
 ```
@@ -226,6 +241,7 @@ function updateBrightness(value) {
 ## Need Help Converting?
 
 The React code is written to be as close to vanilla JS patterns as possible:
+
 - No complex React-specific patterns
 - Clear separation of concerns
 - Simple state management
