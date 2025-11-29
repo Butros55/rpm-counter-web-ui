@@ -26,7 +26,7 @@ export default function LEDPreview({ config }: LEDPreviewProps) {
         <CardTitle>LED Preview</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="w-full max-w-4xl mx-auto">
+        <div className="w-[80%] mx-auto">
           <div className="flex gap-1 h-16 items-end">
             {Array.from({ length: segments }).map((_, i) => (
               <div
