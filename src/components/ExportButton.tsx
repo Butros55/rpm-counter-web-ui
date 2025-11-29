@@ -9,9 +9,10 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { Card, CardContent } from '@/components/ui/card'
-import { Download, FileHtml, FileCss, FileJs, CheckCircle, Eye, Copy, Check } from '@phosphor-icons/react'
-import { generateVanillaExport, downloadFile, downloadAllFiles } from '@/lib/export-generator'
+import { Download, FileHtml, FileCss, FileJs, CheckCircle, Eye, Copy, Check, Folder, FolderOpen } from '@phosphor-icons/react'
+import { generateVanillaExport, downloadFile, downloadAllFiles, saveFilesToDirectory } from '@/lib/export-generator'
 import { toast } from 'sonner'
+import { useKV } from '@github/spark/hooks'
 import Prism from 'prismjs'
 import 'prismjs/components/prism-markup'
 import 'prismjs/components/prism-css'
@@ -23,6 +24,12 @@ export default function ExportButton() {
   const [previewFile, setPreviewFile] = useState<{ name: string; content: string } | null>(null)
   const [files, setFiles] = useState<ReturnType<typeof generateVanillaExport> | null>(null)
   const [copiedFile, setCopiedFile] = useState<string | null>(null)
+  const [exportFolderName, setExportFolderName] = useKV<string>('export-folder-name', '')
+  const [hasFileSystemAccess, setHasFileSystemAccess] = useState(false)
+
+  useEffect(() => {
+    setHasFileSystemAccess('showDirectoryPicker' in window)
+  }, [])
 
   const handleGenerate = () => {
     const exportedFiles = generateVanillaExport()
@@ -34,6 +41,47 @@ export default function ExportButton() {
     if (!files) return
     downloadAllFiles(files)
     toast.success('Downloading all files...')
+  }
+
+  const handleSelectFolder = async () => {
+    if (!files) return
+    
+    try {
+      const folderName = await saveFilesToDirectory(files)
+      setExportFolderName(folderName)
+      toast.success(`Files saved to folder: ${folderName}`)
+    } catch (error: any) {
+      if (error.message !== 'Folder selection cancelled') {
+        toast.error('Failed to save files to folder')
+        console.error(error)
+      }
+    }
+  }
+
+  const handleExportToFolder = async () => {
+    if (!files) return
+    
+    if (!exportFolderName) {
+      await handleSelectFolder()
+      return
+    }
+
+    try {
+      const folderName = await saveFilesToDirectory(files)
+      setExportFolderName(folderName)
+      toast.success(`Files updated in: ${folderName}`)
+    } catch (error: any) {
+      if (error.message === 'Folder selection cancelled') {
+        return
+      }
+      toast.error('Failed to save files. Please select folder again.')
+      setExportFolderName('')
+    }
+  }
+
+  const handleChangeFolder = () => {
+    setExportFolderName('')
+    toast.info('Export folder cleared. Select a new folder on next export.')
   }
 
   const handleDownloadSingle = (filename: string) => {
@@ -108,10 +156,50 @@ export default function ExportButton() {
                 <CheckCircle size={20} weight="fill" className="text-accent" />
                 <span className="font-medium">4 files generated</span>
               </div>
-              <Button onClick={handleDownloadAll} size="sm">
-                Download All
-              </Button>
+              <div className="flex gap-2">
+                {hasFileSystemAccess && (
+                  <Button 
+                    onClick={handleExportToFolder} 
+                    size="sm"
+                    className="gap-2"
+                  >
+                    {exportFolderName ? (
+                      <>
+                        <FolderOpen size={16} weight="fill" />
+                        Export to {exportFolderName}
+                      </>
+                    ) : (
+                      <>
+                        <Folder size={16} weight="fill" />
+                        Select Folder
+                      </>
+                    )}
+                  </Button>
+                )}
+                <Button onClick={handleDownloadAll} size="sm" variant="outline">
+                  Download All
+                </Button>
+              </div>
             </div>
+
+            {hasFileSystemAccess && exportFolderName && (
+              <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg text-sm">
+                <div className="flex items-center gap-2">
+                  <Folder size={16} className="text-muted-foreground" />
+                  <span className="text-muted-foreground">
+                    Export folder: <span className="font-medium text-foreground">{exportFolderName}</span>
+                  </span>
+                </div>
+                <Button 
+                  onClick={handleChangeFolder} 
+                  size="sm" 
+                  variant="ghost"
+                  className="h-7 text-xs"
+                >
+                  Change
+                </Button>
+              </div>
+            )}
 
             <div className="space-y-2">
               {files && Object.entries(files).map(([filename, content]) => (

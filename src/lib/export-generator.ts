@@ -1583,3 +1583,30 @@ export function downloadAllFiles(files: ExportFiles) {
     }, index * 200)
   })
 }
+
+export async function saveFilesToDirectory(files: ExportFiles): Promise<string> {
+  if (!('showDirectoryPicker' in window)) {
+    throw new Error('File System Access API not supported')
+  }
+
+  try {
+    const dirHandle = await (window as any).showDirectoryPicker({
+      mode: 'readwrite',
+      startIn: 'downloads'
+    })
+
+    for (const [filename, content] of Object.entries(files)) {
+      const fileHandle = await dirHandle.getFileHandle(filename, { create: true })
+      const writable = await fileHandle.createWritable()
+      await writable.write(content)
+      await writable.close()
+    }
+
+    return dirHandle.name
+  } catch (error: any) {
+    if (error.name === 'AbortError') {
+      throw new Error('Folder selection cancelled')
+    }
+    throw error
+  }
+}
