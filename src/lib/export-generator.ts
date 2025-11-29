@@ -330,6 +330,57 @@ export function generateVanillaExport(): ExportFiles {
 
         <div class="card">
             <div class="card-header">
+                <h2>🔄 Firmware Update</h2>
+                <p class="description">Upload new firmware to your ESP32</p>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <strong>⚠️ Warning:</strong> Do not disconnect power or close this page during the update. The ESP32 will reboot automatically.
+                </div>
+
+                <div class="form-group">
+                    <label for="firmware-file">Select Firmware File (.bin)</label>
+                    <div class="file-input-group">
+                        <input type="file" id="firmware-file" accept=".bin,.elf" class="file-input">
+                        <button id="clear-file-btn" class="btn-icon" style="display: none;">✕</button>
+                    </div>
+                    <div id="file-info" class="file-info" style="display: none;"></div>
+                </div>
+
+                <div id="upload-progress" class="upload-progress" style="display: none;">
+                    <div class="progress-info">
+                        <span>Uploading firmware...</span>
+                        <span id="upload-percent" class="mono">0%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div id="progress-fill" class="progress-fill"></div>
+                    </div>
+                </div>
+
+                <div id="upload-status"></div>
+
+                <button id="upload-firmware-btn" class="btn btn-primary" disabled>
+                    Upload Firmware
+                </button>
+
+                <div id="firmware-advanced" style="display: none;">
+                    <details class="advanced-info">
+                        <summary>Advanced Information</summary>
+                        <div class="info-text">
+                            <p>• Firmware files should be compiled for ESP32 with appropriate partition scheme</p>
+                            <p>• Maximum file size: 2MB</p>
+                            <p>• Supported formats: .bin (binary), .elf (executable)</p>
+                            <p>• Update endpoint: POST /update</p>
+                            <p>• The ESP32 will reboot automatically after successful upload</p>
+                            <p>• Connection will be lost during reboot (typically 5-10 seconds)</p>
+                        </div>
+                    </details>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
                 <h2>Bluetooth Connection</h2>
                 <p class="description">Manage OBD-II adapter pairing</p>
             </div>
@@ -1000,6 +1051,156 @@ input[type="color"] {
 #status-badge {
     margin-bottom: 1rem;
 }
+
+.alert {
+    padding: 1rem;
+    border-radius: calc(var(--radius) - 2px);
+    margin-bottom: 1rem;
+    border: 1px solid;
+}
+
+.alert-warning {
+    background: oklch(0.75 0.18 85 / 0.15);
+    border-color: var(--warning);
+    color: var(--warning);
+}
+
+.alert-success {
+    background: oklch(0.65 0.20 140 / 0.15);
+    border-color: var(--success);
+    color: var(--success);
+}
+
+.alert-error {
+    background: oklch(0.60 0.22 25 / 0.15);
+    border-color: var(--error);
+    color: var(--error);
+}
+
+.file-input-group {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.file-input {
+    flex: 1;
+    font-size: 0.875rem;
+    color: var(--fg-color);
+    padding: 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: calc(var(--radius) - 2px);
+    background: var(--bg-color);
+}
+
+.file-input::file-selector-button {
+    margin-right: 1rem;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: calc(var(--radius) - 4px);
+    background: var(--primary);
+    color: var(--primary-fg);
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.file-input::file-selector-button:hover {
+    background: oklch(0.70 0.22 240);
+}
+
+.file-input:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-icon {
+    padding: 0.5rem;
+    background: var(--muted);
+    border: none;
+    border-radius: calc(var(--radius) - 2px);
+    color: var(--fg-color);
+    cursor: pointer;
+    font-size: 1rem;
+    line-height: 1;
+}
+
+.btn-icon:hover {
+    background: oklch(0.30 0.01 240);
+}
+
+.file-info {
+    padding: 0.75rem;
+    background: var(--muted);
+    border-radius: calc(var(--radius) - 2px);
+    margin-top: 0.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.875rem;
+}
+
+.file-info .filename {
+    font-weight: 500;
+}
+
+.file-info .filesize {
+    color: var(--muted-fg);
+}
+
+.upload-progress {
+    margin: 1rem 0;
+}
+
+.progress-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+}
+
+.progress-bar {
+    height: 0.5rem;
+    background: var(--muted);
+    border-radius: 9999px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: var(--primary);
+    transition: width 0.3s ease;
+    width: 0%;
+}
+
+.advanced-info {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+}
+
+.advanced-info summary {
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 0.5rem 0;
+}
+
+.advanced-info summary:hover {
+    color: var(--primary);
+}
+
+.advanced-info .info-text {
+    margin-top: 0.5rem;
+    padding-left: 1rem;
+    font-size: 0.75rem;
+    color: var(--muted-fg);
+    line-height: 1.8;
+}
+
+.advanced-info .info-text p {
+    margin: 0.25rem 0;
+}
 `
 
   const appJs = `(function() {
@@ -1085,8 +1286,10 @@ input[type="color"] {
         if (status.devMode) {
             const devPanel = document.getElementById('dev-mode-panel');
             const obdConsole = document.getElementById('obd-console-section');
+            const firmwareAdvanced = document.getElementById('firmware-advanced');
             if (devPanel) devPanel.style.display = 'block';
             if (obdConsole) obdConsole.style.display = 'block';
+            if (firmwareAdvanced) firmwareAdvanced.style.display = 'block';
 
             const lastTx = document.getElementById('last-tx');
             const lastObd = document.getElementById('last-obd');
@@ -1115,6 +1318,186 @@ input[type="color"] {
         if (autoReconnect && status.autoReconnect !== undefined) {
             autoReconnect.checked = status.autoReconnect;
         }
+    }
+
+    function updateLEDPreview() {
+        const greenEnd = parseInt(document.getElementById('greenEndPct')?.value || '40');
+        const yellowEnd = parseInt(document.getElementById('yellowEndPct')?.value || '80');
+        const blinkStart = parseInt(document.getElementById('blinkStartPct')?.value || '95');
+        
+        const preview = document.getElementById('led-preview');
+        if (!preview) return;
+        
+        const gradient = \`linear-gradient(to right, 
+            var(--success) 0%, 
+            var(--success) \${greenEnd}%, 
+            var(--warning) \${greenEnd}%, 
+            var(--warning) \${yellowEnd}%, 
+            var(--error) \${yellowEnd}%, 
+            var(--error) 100%)\`;
+        
+        preview.style.background = gradient;
+    }
+
+    let selectedFirmwareFile = null;
+
+    function formatFileSize(bytes) {
+        if (bytes < 1024) return bytes + ' B';
+        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+        return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+    }
+
+    function handleFirmwareFileSelect(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const validExtensions = ['.bin', '.elf'];
+        const fileExtension = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+        
+        if (!validExtensions.includes(fileExtension)) {
+            showToast('Invalid file type. Please select a .bin or .elf file', 'error');
+            e.target.value = '';
+            return;
+        }
+
+        if (file.size > 2 * 1024 * 1024) {
+            showToast('File too large. Maximum size is 2MB', 'error');
+            e.target.value = '';
+            return;
+        }
+
+        selectedFirmwareFile = file;
+        
+        const fileInfo = document.getElementById('file-info');
+        const clearBtn = document.getElementById('clear-file-btn');
+        const uploadBtn = document.getElementById('upload-firmware-btn');
+        
+        if (fileInfo) {
+            fileInfo.innerHTML = \`
+                <span class="filename">\${file.name}</span>
+                <span class="filesize">\${formatFileSize(file.size)}</span>
+            \`;
+            fileInfo.style.display = 'flex';
+        }
+        
+        if (clearBtn) clearBtn.style.display = 'block';
+        if (uploadBtn) uploadBtn.disabled = false;
+        
+        const uploadStatus = document.getElementById('upload-status');
+        if (uploadStatus) uploadStatus.innerHTML = '';
+    }
+
+    function handleClearFirmwareFile() {
+        selectedFirmwareFile = null;
+        const fileInput = document.getElementById('firmware-file');
+        const fileInfo = document.getElementById('file-info');
+        const clearBtn = document.getElementById('clear-file-btn');
+        const uploadBtn = document.getElementById('upload-firmware-btn');
+        const uploadProgress = document.getElementById('upload-progress');
+        const uploadStatus = document.getElementById('upload-status');
+        
+        if (fileInput) fileInput.value = '';
+        if (fileInfo) fileInfo.style.display = 'none';
+        if (clearBtn) clearBtn.style.display = 'none';
+        if (uploadBtn) uploadBtn.disabled = true;
+        if (uploadProgress) uploadProgress.style.display = 'none';
+        if (uploadStatus) uploadStatus.innerHTML = '';
+    }
+
+    function handleFirmwareUpload() {
+        if (!selectedFirmwareFile) return;
+
+        const uploadBtn = document.getElementById('upload-firmware-btn');
+        const fileInput = document.getElementById('firmware-file');
+        const uploadProgress = document.getElementById('upload-progress');
+        const progressFill = document.getElementById('progress-fill');
+        const uploadPercent = document.getElementById('upload-percent');
+        const uploadStatus = document.getElementById('upload-status');
+        
+        if (uploadBtn) uploadBtn.disabled = true;
+        if (fileInput) fileInput.disabled = true;
+        if (uploadProgress) uploadProgress.style.display = 'block';
+        if (uploadStatus) uploadStatus.innerHTML = '';
+        
+        const formData = new FormData();
+        formData.append('firmware', selectedFirmwareFile);
+
+        const xhr = new XMLHttpRequest();
+
+        xhr.upload.addEventListener('progress', (e) => {
+            if (e.lengthComputable) {
+                const progress = Math.round((e.loaded / e.total) * 100);
+                if (progressFill) progressFill.style.width = progress + '%';
+                if (uploadPercent) uploadPercent.textContent = progress + '%';
+            }
+        });
+
+        xhr.addEventListener('load', () => {
+            if (xhr.status === 200) {
+                if (progressFill) progressFill.style.width = '100%';
+                if (uploadPercent) uploadPercent.textContent = '100%';
+                if (uploadStatus) {
+                    uploadStatus.innerHTML = \`
+                        <div class="alert alert-success">
+                            <strong>✓ Success!</strong> Firmware uploaded successfully. The ESP32 is rebooting...
+                        </div>
+                    \`;
+                }
+                showToast('Firmware uploaded successfully! ESP32 is rebooting...', 'success');
+                
+                setTimeout(() => {
+                    showToast('Reconnecting to ESP32...', 'success');
+                }, 2000);
+                
+                setTimeout(() => {
+                    handleClearFirmwareFile();
+                    if (uploadBtn) uploadBtn.disabled = false;
+                    if (fileInput) fileInput.disabled = false;
+                }, 5000);
+            } else {
+                const errorText = xhr.responseText || 'Upload failed';
+                if (uploadStatus) {
+                    uploadStatus.innerHTML = \`
+                        <div class="alert alert-error">
+                            <strong>✗ Error:</strong> \${errorText}
+                        </div>
+                    \`;
+                }
+                showToast('Upload failed: ' + errorText, 'error');
+                if (uploadBtn) uploadBtn.disabled = false;
+                if (fileInput) fileInput.disabled = false;
+            }
+        });
+
+        xhr.addEventListener('error', () => {
+            if (uploadStatus) {
+                uploadStatus.innerHTML = \`
+                    <div class="alert alert-error">
+                        <strong>✗ Error:</strong> Network error during upload
+                    </div>
+                \`;
+            }
+            showToast('Network error during upload', 'error');
+            if (uploadBtn) uploadBtn.disabled = false;
+            if (fileInput) fileInput.disabled = false;
+        });
+
+        xhr.addEventListener('timeout', () => {
+            if (uploadStatus) {
+                uploadStatus.innerHTML = \`
+                    <div class="alert alert-error">
+                        <strong>✗ Error:</strong> Upload timeout - ESP32 may be rebooting
+                    </div>
+                \`;
+            }
+            showToast('Upload timeout', 'error');
+            if (uploadBtn) uploadBtn.disabled = false;
+            if (fileInput) fileInput.disabled = false;
+        });
+
+        xhr.open('POST', \`\${API_BASE}/update\`);
+        xhr.timeout = 60000;
+        xhr.send(formData);
     }
 
     function updateLEDPreview() {
@@ -1523,6 +1906,9 @@ input[type="color"] {
         const vehicleRefreshBtn = document.getElementById('vehicle-refresh-btn');
         const obdSendBtn = document.getElementById('obd-send-btn');
         const obdInput = document.getElementById('obd-cmd-input');
+        const firmwareFile = document.getElementById('firmware-file');
+        const clearFileBtn = document.getElementById('clear-file-btn');
+        const uploadFirmwareBtn = document.getElementById('upload-firmware-btn');
         
         if (saveModeBtn) saveModeBtn.addEventListener('click', handleSaveMode);
         if (wifiScanBtn) wifiScanBtn.addEventListener('click', handleWiFiScan);
@@ -1530,6 +1916,9 @@ input[type="color"] {
         if (bleScanBtn) bleScanBtn.addEventListener('click', handleBLEScan);
         if (vehicleRefreshBtn) vehicleRefreshBtn.addEventListener('click', handleVehicleRefresh);
         if (obdSendBtn) obdSendBtn.addEventListener('click', handleOBDSend);
+        if (firmwareFile) firmwareFile.addEventListener('change', handleFirmwareFileSelect);
+        if (clearFileBtn) clearFileBtn.addEventListener('click', handleClearFirmwareFile);
+        if (uploadFirmwareBtn) uploadFirmwareBtn.addEventListener('click', handleFirmwareUpload);
         if (obdInput) {
             obdInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') handleOBDSend();

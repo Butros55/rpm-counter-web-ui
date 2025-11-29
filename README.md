@@ -128,6 +128,17 @@ This application includes two export options for ESP32 deployment:
 - [x] Auto-log toggle for live monitoring
 - [x] Custom themed scrollbars
 
+**Firmware Update:**
+- [x] OTA (Over-The-Air) firmware upload via web interface
+- [x] File validation (.bin/.elf, max 2MB)
+- [x] Real-time upload progress tracking
+- [x] Warning alerts to prevent power interruption
+- [x] Success/error status feedback
+- [x] ESP32 reboot notification and reconnection guidance
+- [x] Advanced information panel (dev mode only)
+- [x] File size display and validation
+- [x] Clear file selection with reset capability
+
 **Export Functionality:**
 - [x] Vanilla HTML/CSS/JS export (4 files)
 - [x] React build setup package export
@@ -161,7 +172,6 @@ This application includes two export options for ESP32 deployment:
 
 - [ ] Configuration presets (save/load custom profiles)
 - [ ] Export/Import configuration as JSON
-- [ ] Firmware update via web interface
 - [ ] Advanced OBD command templates
 - [ ] Connection history and saved BLE devices
 - [ ] Advanced diagnostic charts
@@ -307,6 +317,7 @@ See `CLAUDE_PROMPT_REACT_BUILD_EXPORT.md` for detailed instructions on building 
 - **EXPORT_SOLUTION.md** - Detailed comparison of export options
 - **VANILLA_EXPORT_IMPROVEMENTS.md** - How to improve vanilla export to match React
 - **ESP32_CONVERSION_GUIDE.md** - React to vanilla JS conversion examples
+- **FIRMWARE_UPDATE_GUIDE.md** - Complete OTA firmware update implementation guide
 - **CLAUDE_PROMPT_REACT_BUILD_EXPORT.md** - Guide for implementing React build export
 
 ## 📄 License

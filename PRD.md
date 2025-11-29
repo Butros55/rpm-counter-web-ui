@@ -132,6 +132,32 @@ A modern, automotive-inspired web interface prototype for an ESP32-based shift l
     - Fallback to browser downloads if API not supported
     - Clear UI feedback when folder is set
 
+### ✅ Firmware Update (IMPLEMENTED)
+- **Functionality**: Upload and flash new ESP32 firmware directly through the web interface via OTA (Over-The-Air) updates
+- **Purpose**: Enable firmware updates without requiring USB cable connection or external tools
+- **Trigger**: Settings page, Firmware Update section
+- **Progression**: Select firmware file → Validate file type and size → Upload with progress tracking → ESP32 reboots → Reconnect to updated device
+- **Success criteria**: ✓ File validation prevents invalid uploads, ✓ Progress bar shows real-time upload status, ✓ Clear warnings prevent interruption, ✓ Success/error states clearly communicated
+- **Implementation Notes:**
+  - File selection with .bin/.elf validation
+  - Maximum file size: 2MB (configurable for ESP32 partition schemes)
+  - Real-time upload progress bar using XMLHttpRequest progress events
+  - Warning alerts about not disconnecting power during update
+  - Success confirmation when firmware uploaded successfully
+  - Error handling with detailed error messages
+  - Automatic ESP32 reboot notification after successful upload
+  - Connection loss handling during reboot cycle
+  - Advanced information section in dev mode showing:
+    - File format requirements
+    - Partition scheme notes
+    - Update endpoint details
+    - Typical reboot timing
+  - Endpoint: POST /update (multipart/form-data with 'firmware' field)
+  - Clear file button to reset selection
+  - File size display in human-readable format
+  - Disabled state during upload prevents duplicate requests
+  - Toast notifications for all major events (validation errors, upload progress, success, errors)
+
 ## Edge Case Handling
 
 **Implemented:**
@@ -244,7 +270,6 @@ Subtle, purposeful motion that communicates state changes and provides feedback 
 
 ### 📅 Planned Features
 - [ ] **Configuration Presets**: Save/load multiple custom profiles for different driving scenarios
-- [ ] **Firmware Update**: Over-the-air (OTA) firmware updates via web interface
 - [ ] **Advanced Diagnostics**: Real-time charts for RPM, vehicle speed, throttle position
 - [ ] **System Logs**: Export debug logs and error history for troubleshooting
 - [ ] **BLE Device History**: Remember previously paired devices for quick reconnection

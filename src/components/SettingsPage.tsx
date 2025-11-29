@@ -11,6 +11,7 @@ import WiFiManager from './WiFiManager'
 import BLEManager from './BLEManager'
 import VehicleSync from './VehicleSync'
 import OBDConsole from './OBDConsole'
+import FirmwareUpdate from './FirmwareUpdate'
 
 export default function SettingsPage() {
   const [status, setStatus] = useState<StatusResponse | null>(null)
@@ -84,6 +85,8 @@ export default function SettingsPage() {
       </Card>
 
       <WiFiManager />
+
+      <FirmwareUpdate devMode={devMode} />
 
       <VehicleSync status={status} />
 
