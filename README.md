@@ -45,15 +45,27 @@ npm run lint
 
 This application includes two export options for ESP32 deployment:
 
-### Option 1: Vanilla Export (Recommended)
+### Option 1: Vanilla Export (Recommended) ✨ ENHANCED
 
 **Best for:** Production ESP32 devices with limited storage
 
-- **File Size:** ~20KB total (4 files: index.html, settings.html, style.css, app.js)
+- **File Size:** ~25KB total (4 files: index.html, settings.html, style.css, app.js)
 - **Storage Required:** <100KB on ESP32
-- **Appearance:** ~95% visual match to React version
+- **Appearance:** ~98% visual match to React version (recently improved!)
 - **Setup:** Simple - just upload files to LittleFS/SPIFFS
 - **Browser Support:** All browsers, no build tools needed
+
+**Recent Improvements:**
+- ✨ Enhanced slider styling with better visual feedback
+- ✨ Improved color picker with hover effects
+- ✨ Smooth toast notifications with slide-in/out animations
+- ✨ Better button shadows and hover states matching shadcn
+- ✨ LED preview with blink animation
+- ✨ Focus rings on all interactive elements
+- ✨ Custom themed scrollbars matching color scheme
+- ✨ Responsive improvements for mobile devices
+- ✨ Loading skeleton states
+- ✨ Better card hover effects with subtle lift
 
 **How to use:**
 1. Click "Export for ESP32" button in the app

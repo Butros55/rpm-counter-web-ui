@@ -147,7 +147,9 @@ export function generateVanillaExport(): ExportFiles {
                     <div class="form-group">
                         <label for="greenColor">Low RPM Color</label>
                         <div class="color-input-group">
-                            <input type="color" id="greenColor" name="greenColor" value="#00FF00">
+                            <div class="color-picker-wrapper">
+                                <input type="color" id="greenColor" name="greenColor" value="#00FF00">
+                            </div>
                             <input type="text" id="greenColor-text" class="color-text mono" value="#00FF00">
                         </div>
                     </div>
@@ -155,7 +157,9 @@ export function generateVanillaExport(): ExportFiles {
                     <div class="form-group">
                         <label for="yellowColor">Mid RPM Color</label>
                         <div class="color-input-group">
-                            <input type="color" id="yellowColor" name="yellowColor" value="#FFFF00">
+                            <div class="color-picker-wrapper">
+                                <input type="color" id="yellowColor" name="yellowColor" value="#FFFF00">
+                            </div>
                             <input type="text" id="yellowColor-text" class="color-text mono" value="#FFFF00">
                         </div>
                     </div>
@@ -163,7 +167,9 @@ export function generateVanillaExport(): ExportFiles {
                     <div class="form-group">
                         <label for="redColor">Shift Warning Color</label>
                         <div class="color-input-group">
-                            <input type="color" id="redColor" name="redColor" value="#FF0000">
+                            <div class="color-picker-wrapper">
+                                <input type="color" id="redColor" name="redColor" value="#FF0000">
+                            </div>
                             <input type="text" id="redColor-text" class="color-text mono" value="#FF0000">
                         </div>
                     </div>
@@ -484,6 +490,8 @@ export function generateVanillaExport(): ExportFiles {
     --muted: oklch(0.25 0.01 240);
     --muted-fg: oklch(0.65 0 0);
     --border: oklch(0.30 0.01 240);
+    --input: oklch(0.30 0.01 240);
+    --ring: oklch(0.65 0.22 240);
     --success: oklch(0.65 0.20 140);
     --warning: oklch(0.75 0.18 85);
     --error: oklch(0.60 0.22 25);
@@ -560,7 +568,13 @@ h1 {
     background: var(--card-bg);
     border-radius: var(--radius);
     margin-bottom: 1.5rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    border: 1px solid var(--border);
+    transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.card:hover {
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
 }
 
 .card-header {
@@ -616,7 +630,7 @@ textarea {
     border-radius: calc(var(--radius) - 2px);
     color: var(--fg-color);
     font-size: 0.875rem;
-    transition: border-color 0.15s;
+    transition: border-color 0.15s, box-shadow 0.15s;
 }
 
 input[type="text"]:focus,
@@ -625,39 +639,79 @@ select:focus,
 textarea:focus {
     outline: none;
     border-color: var(--primary);
+    box-shadow: 0 0 0 3px oklch(0.65 0.22 240 / 0.1);
 }
 
 input[type="range"] {
-    width: 100%;
-    height: 6px;
-    background: var(--muted);
-    border-radius: 3px;
-    outline: none;
     -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 8px;
+    background: transparent;
+    outline: none;
+    cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 8px;
+    background: var(--muted);
+    border-radius: 4px;
 }
 
 input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    width: 18px;
-    height: 18px;
-    background: var(--primary);
+    width: 20px;
+    height: 20px;
+    background: white;
+    border: 2px solid var(--primary);
     border-radius: 50%;
     cursor: pointer;
-    transition: transform 0.15s;
+    margin-top: -6px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    transition: transform 0.15s, box-shadow 0.15s;
 }
 
 input[type="range"]::-webkit-slider-thumb:hover {
     transform: scale(1.1);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+input[type="range"]::-webkit-slider-thumb:active {
+    transform: scale(0.95);
+}
+
+input[type="range"]::-moz-range-track {
+    height: 8px;
+    background: var(--muted);
+    border-radius: 4px;
 }
 
 input[type="range"]::-moz-range-thumb {
-    width: 18px;
-    height: 18px;
-    background: var(--primary);
+    width: 20px;
+    height: 20px;
+    background: white;
+    border: 2px solid var(--primary);
     border-radius: 50%;
     cursor: pointer;
-    border: none;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+
+input[type="range"]::-moz-range-thumb:hover {
+    transform: scale(1.1);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+input[type="range"]:focus::-webkit-slider-thumb {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+}
+
+input[type="range"]:focus::-moz-range-thumb {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
 }
 
 .toggle-group {
@@ -728,16 +782,35 @@ input:checked + .slider:before {
 .color-input-group {
     display: flex;
     gap: 0.5rem;
+    align-items: stretch;
+}
+
+.color-picker-wrapper {
+    position: relative;
+    width: 4rem;
+    height: 2.5rem;
+    border-radius: calc(var(--radius) - 2px);
+    overflow: hidden;
+    border: 1px solid var(--border);
+    transition: transform 0.15s;
+}
+
+.color-picker-wrapper:hover {
+    transform: scale(1.05);
+}
+
+.color-picker-wrapper:active {
+    transform: scale(0.95);
 }
 
 input[type="color"] {
-    width: 4rem;
-    height: 2.5rem;
-    padding: 0.25rem;
-    border: 1px solid var(--border);
-    border-radius: calc(var(--radius) - 2px);
-    background: var(--bg-color);
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
     cursor: pointer;
+    padding: 0;
 }
 
 .color-text {
@@ -750,7 +823,7 @@ input[type="color"] {
 
 .btn {
     padding: 0.625rem 1rem;
-    border: none;
+    border: 1px solid transparent;
     border-radius: calc(var(--radius) - 2px);
     font-size: 0.875rem;
     font-weight: 500;
@@ -758,8 +831,10 @@ input[type="color"] {
     transition: all 0.15s;
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 0.5rem;
     min-height: 40px;
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
 }
 
 .btn:disabled {
@@ -770,23 +845,32 @@ input[type="color"] {
 .btn-primary {
     background: var(--primary);
     color: var(--primary-fg);
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
 }
 
 .btn-primary:hover:not(:disabled) {
     background: oklch(0.70 0.22 240);
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
 }
 
 .btn-primary:active:not(:disabled) {
     transform: translateY(1px);
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
 }
 
 .btn-secondary {
     background: var(--muted);
     color: var(--fg-color);
+    border-color: var(--border);
 }
 
 .btn-secondary:hover:not(:disabled) {
     background: oklch(0.30 0.01 240);
+    border-color: var(--input);
+}
+
+.btn-secondary:active:not(:disabled) {
+    transform: translateY(1px);
 }
 
 .btn-group {
@@ -807,15 +891,18 @@ input[type="color"] {
     display: inline-flex;
     align-items: center;
     gap: 0.375rem;
-    padding: 0.25rem 0.75rem;
+    padding: 0.25rem 0.625rem;
     border-radius: 9999px;
     font-size: 0.75rem;
     font-weight: 500;
+    letter-spacing: 0.025em;
+    transition: all 0.15s;
 }
 
 .badge-connected {
     background: var(--success);
-    color: var(--bg-color);
+    color: white;
+    box-shadow: 0 0 12px var(--success);
 }
 
 .badge-disconnected {
@@ -975,28 +1062,94 @@ input[type="color"] {
     padding: 1rem 1.25rem;
     border-radius: var(--radius);
     margin-bottom: 0.5rem;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    min-width: 250px;
-    animation: slideIn 0.2s ease-out;
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    border: 1px solid var(--border);
+    min-width: 300px;
+    animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
 }
 
 .toast.success {
-    border-left: 4px solid var(--success);
+    border-left: 3px solid var(--success);
 }
 
 .toast.error {
-    border-left: 4px solid var(--error);
+    border-left: 3px solid var(--error);
 }
 
 @keyframes slideIn {
     from {
-        transform: translateX(400px);
+        transform: translateX(calc(100% + 1rem));
         opacity: 0;
     }
     to {
         transform: translateX(0);
         opacity: 1;
     }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(calc(100% + 1rem));
+        opacity: 0;
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(calc(100% + 1rem));
+        opacity: 0;
+    }
+}
+
+.skeleton {
+    background: linear-gradient(
+        90deg,
+        var(--muted) 25%,
+        var(--border) 50%,
+        var(--muted) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: calc(var(--radius) - 2px);
+    height: 1.5rem;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+@keyframes blink {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.3;
+    }
+}
+
+.led-segment {
+    flex: 1;
+    transition: all 0.3s ease;
+}
+
+.led-segment.blink {
+    animation: blink 0.5s infinite;
 }
 
 .modal {
@@ -1201,6 +1354,120 @@ input[type="color"] {
 .advanced-info .info-text p {
     margin: 0.25rem 0;
 }
+
+.custom-scrollbar::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: var(--muted);
+    border-radius: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--primary);
+    border-radius: 6px;
+    border: 2px solid var(--muted);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: var(--accent);
+}
+
+.custom-scrollbar::-webkit-scrollbar-corner {
+    background: var(--muted);
+}
+
+.custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary) var(--muted);
+}
+
+.console-output,
+textarea {
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary) var(--muted);
+}
+
+.console-output::-webkit-scrollbar,
+textarea::-webkit-scrollbar {
+    width: 8px;
+}
+
+.console-output::-webkit-scrollbar-track,
+textarea::-webkit-scrollbar-track {
+    background: var(--muted);
+    border-radius: 4px;
+}
+
+.console-output::-webkit-scrollbar-thumb,
+textarea::-webkit-scrollbar-thumb {
+    background: var(--primary);
+    border-radius: 4px;
+}
+
+.console-output::-webkit-scrollbar-thumb:hover,
+textarea::-webkit-scrollbar-thumb:hover {
+    background: var(--accent);
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+    }
+
+    .action-buttons .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .color-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .tabs {
+        max-width: 100%;
+    }
+
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .btn-group {
+        flex-direction: column;
+    }
+
+    .btn-group .btn {
+        width: 100%;
+    }
+
+    .network-item,
+    .device-item {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.5rem;
+    }
+
+    .network-item button,
+    .device-item button {
+        width: 100%;
+    }
+}
+
+@media (hover: hover) {
+    .card:hover {
+        transform: translateY(-2px);
+    }
+}
 `
 
   const appJs = `(function() {
@@ -1215,9 +1482,24 @@ input[type="color"] {
         const container = document.getElementById('toast-container');
         const toast = document.createElement('div');
         toast.className = \`toast \${type}\`;
-        toast.textContent = message;
+        
+        const icon = type === 'success' ? '✓' : '✗';
+        const iconSpan = document.createElement('span');
+        iconSpan.style.fontSize = '1.25rem';
+        iconSpan.style.fontWeight = 'bold';
+        iconSpan.textContent = icon;
+        
+        const messageSpan = document.createElement('span');
+        messageSpan.textContent = message;
+        
+        toast.appendChild(iconSpan);
+        toast.appendChild(messageSpan);
         container.appendChild(toast);
-        setTimeout(() => toast.remove(), 3000);
+        
+        setTimeout(() => {
+            toast.style.animation = 'slideOut 0.3s cubic-bezier(0.16, 1, 0.3, 1)';
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
     }
 
     function formDataFromConfig() {
@@ -1518,17 +1800,20 @@ input[type="color"] {
             const segment = document.createElement('div');
             segment.className = 'led-segment';
             
+            let color;
             if (pct < greenEnd) {
-                segment.style.background = greenColor;
+                color = greenColor;
             } else if (pct < yellowEnd) {
-                segment.style.background = yellowColor;
+                color = yellowColor;
             } else {
-                segment.style.background = redColor;
+                color = redColor;
                 if (pct >= blinkStart) {
-                    segment.style.opacity = '0.5';
+                    segment.classList.add('blink');
                 }
             }
             
+            segment.style.background = color;
+            segment.style.boxShadow = \`0 0 8px \${color}\`;
             preview.appendChild(segment);
         }
     }
