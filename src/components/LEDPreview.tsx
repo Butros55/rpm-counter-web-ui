@@ -26,23 +26,25 @@ export default function LEDPreview({ config }: LEDPreviewProps) {
         <CardTitle>LED Preview</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="flex gap-1 h-12 items-end">
-          {Array.from({ length: segments }).map((_, i) => (
-            <div
-              key={i}
-              className="flex-1 rounded-sm transition-all duration-200"
-              style={{
-                backgroundColor: getSegmentColor(i),
-                height: `${((i + 1) / segments) * 100}%`,
-                opacity: config.brightness / 255,
-              }}
-            />
-          ))}
-        </div>
-        <div className="mt-4 flex justify-between text-xs text-muted-foreground">
-          <span>0%</span>
-          <span className="absolute left-1/2 -translate-x-1/2">{config.blinkStartPct}% (Blink)</span>
-          <span>100%</span>
+        <div className="w-full max-w-4xl mx-auto">
+          <div className="flex gap-1 h-16 items-end">
+            {Array.from({ length: segments }).map((_, i) => (
+              <div
+                key={i}
+                className="flex-1 rounded-sm transition-all duration-200"
+                style={{
+                  backgroundColor: getSegmentColor(i),
+                  height: `${((i + 1) / segments) * 100}%`,
+                  opacity: config.brightness / 255,
+                }}
+              />
+            ))}
+          </div>
+          <div className="mt-4 flex justify-between text-xs text-muted-foreground relative">
+            <span>0%</span>
+            <span className="absolute left-1/2 -translate-x-1/2">{config.blinkStartPct}% (Blink)</span>
+            <span>100%</span>
+          </div>
         </div>
       </CardContent>
     </Card>

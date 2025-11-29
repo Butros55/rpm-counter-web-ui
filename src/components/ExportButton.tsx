@@ -145,8 +145,8 @@ export default function ExportButton() {
       </Dialog>
 
       <Dialog open={!!previewFile} onOpenChange={() => setPreviewFile(null)}>
-        <DialogContent className="max-w-5xl max-h-[85vh] flex flex-col">
-          <DialogHeader>
+        <DialogContent className="max-w-6xl w-[95vw] h-[90vh] flex flex-col p-0">
+          <DialogHeader className="px-6 pt-6 pb-4">
             <DialogTitle className="flex items-center gap-2">
               {previewFile && getFileIcon(previewFile.name)}
               <span className="font-mono">{previewFile?.name}</span>
@@ -156,13 +156,15 @@ export default function ExportButton() {
             </DialogDescription>
           </DialogHeader>
 
-          <div className="flex-1 min-h-0 overflow-hidden rounded-lg border border-border bg-background">
-            <pre className="h-full overflow-auto p-4 text-xs font-mono leading-relaxed">
-              <code>{previewFile?.content}</code>
-            </pre>
+          <div className="flex-1 overflow-auto px-6">
+            <div className="rounded-lg border border-border bg-card/50">
+              <pre className="overflow-auto p-4 text-xs font-mono leading-relaxed">
+                <code>{previewFile?.content}</code>
+              </pre>
+            </div>
           </div>
 
-          <div className="flex justify-end gap-2">
+          <div className="flex justify-end gap-2 px-6 py-4 border-t border-border">
             <Button variant="outline" onClick={() => setPreviewFile(null)}>
               Close
             </Button>
